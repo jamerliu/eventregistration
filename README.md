@@ -10,13 +10,13 @@ closes — instead of a first-come-first-served scramble.
   link before the account is active. Signed in, they browse open events and register — they
   can cancel anytime before the draw. Their result (selected / waitlisted / not selected) shows
   right on the event page once the draw has run.
-- **Admins** (allow-listed by email in an env var) create events with a max capacity and a
-  registration deadline. When ready, they click **Run Random Draw**, which randomly selects up
-  to capacity from everyone registered and waitlists the rest. If a selected student later
-  cancels, the admin can click **Promote Next From Waitlist** to pull in the next person in
-  random order. Admins can also copy the email addresses for any outcome group (selected /
-  waitlisted / not selected) to paste into their own email client and notify people manually —
-  see "About notifications" below.
+- **Admins** (managed directly in a Supabase table — see below) create events with a max
+  capacity and a registration deadline. When ready, they click **Run Random Draw**, which
+  randomly selects up to capacity from everyone registered and waitlists the rest. If a
+  selected student later cancels, the admin can click **Promote Next From Waitlist** to pull in
+  the next person in random order. Admins can also copy the email addresses for any outcome
+  group (selected / waitlisted / not selected) to paste into their own email client and notify
+  people manually — see "About notifications" below.
 
 ## Stack
 
@@ -82,7 +82,22 @@ When a student submits the sign-up form, `components/AuthForm.tsx` checks their 
 `NEXT_PUBLIC_SCHOOL_DOMAIN` *before* ever calling Supabase — so a non-school email is rejected
 immediately, with a clear message, before an account or confirmation email is even created.
 
-## 4. Configure environment variables
+## 4. Add your first admin
+
+Admin access is managed entirely inside Supabase — no environment variable, no redeploy.
+
+1. In your Supabase project, go to **Table Editor → admin_emails**.
+2. Click **Insert row**, and add the email address that should have admin access
+   (e.g. `[email protected]`). Save.
+3. That's it. If that person hasn't signed up yet, they'll be created as an admin the moment
+   they do. If they've already signed up as a student, they'll be promoted to admin the next
+   time they load the app.
+
+To remove an admin later, just delete their row from that same table. There's no chicken-and-egg
+problem for your very first admin — you already have access to the Supabase dashboard, so you
+can add yourself before ever signing into the app.
+
+## 5. Configure environment variables
 
 Copy `.env.example` to `.env` and fill in:
 
@@ -91,21 +106,16 @@ NEXT_PUBLIC_SUPABASE_URL=       # Project URL, from Supabase Project Settings �
 NEXT_PUBLIC_SUPABASE_ANON_KEY=  # anon public key, same page
 SUPABASE_SERVICE_ROLE_KEY=      # service_role key, same page — keep this one secret
 NEXT_PUBLIC_SCHOOL_DOMAIN=      # e.g. sciencespo.fr — only this domain can sign up
-ADMIN_EMAILS=                   # comma-separated, e.g. [email protected],[email protected]
 ```
 
-**How admin access works:** anyone whose email is in `ADMIN_EMAILS` is automatically granted the
-`ADMIN` role the moment they sign in — no manual database edit needed. To add or remove an
-admin, just update that env var and redeploy.
-
-## 5. Install and run locally
+## 6. Install and run locally
 
 ```bash
 npm install
 npm run dev              # http://localhost:3000
 ```
 
-## 6. Deploy to Vercel
+## 7. Deploy to Vercel
 
 1. Push this project to a GitHub repo.
 2. Import it at [vercel.com/new](https://vercel.com/new).
@@ -139,7 +149,8 @@ lib/
   supabase/client.ts            Browser-side Supabase client (sign in / sign up / reset)
   supabase/admin.ts             Service-role client — bypasses RLS, used for all data access
                                  once our own code has already checked auth + role
-  session.ts                    Reads the current user + syncs admin role from ADMIN_EMAILS
+  session.ts                    Reads the current user + syncs admin role from the
+                                 admin_emails table (managed in Supabase's Table Editor)
 middleware.ts                   Refreshes the Supabase session on every request
 supabase/schema.sql             Run this once in Supabase's SQL Editor to set up your database
 components/

@@ -37,18 +37,30 @@ create table if not exists public.registrations (
   unique (user_id, event_id)
 );
 
+-- 3b. Admin allow-list — manage this table directly (Table Editor → admin_emails → Insert row)
+-- to grant or revoke admin access. No env var, no redeploy needed. Add an email here *before*
+-- someone signs up and they'll be made an admin the moment they do; add it after they've
+-- already signed up and they'll be promoted the next time they load the app.
+create table if not exists public.admin_emails (
+  email      text primary key,
+  added_at   timestamptz not null default now()
+);
+
 -- 4. Auto-create a profile row the moment someone signs in for the first time.
+-- If their email is already in admin_emails, they're created as an ADMIN immediately.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, name)
+  insert into public.profiles (id, email, name, role)
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name')
+    coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name'),
+    case when exists (select 1 from public.admin_emails where email = lower(new.email))
+         then 'ADMIN' else 'STUDENT' end
   )
   on conflict (id) do nothing;
   return new;
@@ -69,6 +81,10 @@ create trigger on_auth_user_created
 alter table public.profiles      enable row level security;
 alter table public.events        enable row level security;
 alter table public.registrations enable row level security;
+alter table public.admin_emails  enable row level security;
+-- No policies on admin_emails at all — it's readable/writable only via the service-role
+-- key (which bypasses RLS) or by you directly in the Supabase Table Editor, which uses
+-- your own project owner privileges rather than RLS.
 
 create policy "Users can read their own profile"
   on public.profiles for select
