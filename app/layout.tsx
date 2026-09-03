@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "SCPO Reims Event Registration",
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen font-body">
         <Nav />
         <main className="relative z-[1] max-w-6xl mx-auto px-6 md:px-8 lg:px-12 py-16">{children}</main>
+        <Analytics />
       </body>
     </html>
   );
