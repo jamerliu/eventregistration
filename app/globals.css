@@ -1,0 +1,57 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Serif+4:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background: #ffffff;
+  color: #000000;
+  font-family: "Source Serif 4", Georgia, serif;
+}
+
+/* Subtle global paper texture — kept extremely faint so it never competes with content */
+body {
+  position: relative;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, #000 1px, #000 2px);
+  background-size: 100% 4px;
+  opacity: 0.015;
+}
+
+* {
+  border-radius: 0 !important;
+}
+
+::selection {
+  background: #000000;
+  color: #ffffff;
+}
+
+/* Instant, binary state changes — no eased transitions per the design system */
+.instant {
+  transition: background-color 100ms, color 100ms, border-color 100ms;
+}
+
+.rule-thick {
+  border-top: 4px solid #000000;
+}
+.rule-thin {
+  border-top: 1px solid #000000;
+}
+.rule-hairline {
+  border-top: 1px solid #e5e5e5;
+}
+
+/* Required focus-visible states for accessibility (see design system) */
+.focus-ring:focus-visible {
+  outline: 3px solid #000000;
+  outline-offset: 3px;
+}
