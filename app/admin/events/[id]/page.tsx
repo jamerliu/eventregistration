@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { DrawControls } from "@/components/DrawControls";
 import { EmailExport } from "@/components/EmailExport";
+import { DeleteEventButton } from "@/components/DeleteEventButton";
 
 export default async function ManageEventPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser();
@@ -27,7 +28,10 @@ export default async function ManageEventPage({ params }: { params: { id: string
 
   return (
     <div>
-      <h1 className="font-display text-5xl tracking-tight">{event.title}</h1>
+      <div className="flex items-start justify-between gap-6">
+        <h1 className="font-display text-5xl tracking-tight">{event.title}</h1>
+        <DeleteEventButton eventId={event.id} />
+      </div>
       <p className="font-mono text-xs uppercase tracking-widest text-[#525252] mt-4">
         {active.length} active registrations · capacity {event.max_attendees} · status {event.draw_status}
       </p>

@@ -23,6 +23,7 @@ export default async function EventPage({ params }: { params: { id: string } }) 
     .from("events")
     .select("*, registrations(status, user_id)")
     .eq("id", params.id)
+    .is("deleted_at", null)
     .single();
 
   if (!event) notFound();

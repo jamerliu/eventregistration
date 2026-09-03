@@ -23,7 +23,8 @@ create table if not exists public.events (
   draw_status            text not null default 'OPEN' check (draw_status in ('OPEN', 'CLOSED', 'DRAWN')),
   created_by             uuid references public.profiles(id),
   created_at             timestamptz not null default now(),
-  updated_at             timestamptz not null default now()
+  updated_at             timestamptz not null default now(),
+  deleted_at             timestamptz
 );
 
 -- 3. Registrations — one row per (user, event) pair.

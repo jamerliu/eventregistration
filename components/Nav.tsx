@@ -9,7 +9,7 @@ export async function Nav() {
     <header className="border-b-4 border-black">
       <div className="max-w-6xl mx-auto px-6 md:px-8 lg:px-12 py-6 flex items-center justify-between">
         <Link href="/" className="font-display text-2xl tracking-tight">
-          Event Registration
+          SCPO Reims Event Registration
         </Link>
 
         {user && (

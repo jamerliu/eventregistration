@@ -12,6 +12,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     .from("events")
     .select("*, registrations(status, user_id)")
     .eq("id", params.id)
+    .is("deleted_at", null)
     .single();
 
   if (error || !event) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -64,13 +65,15 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   return NextResponse.json({ ok: true });
 }
 
-// DELETE /api/events/:id — remove an event (admin only)
+// DELETE /api/events/:id — move an event to the recycle bin (admin only).
+// This is a soft delete: it sets deleted_at rather than removing the row, so it can be
+// restored later from Admin → Recycle Bin. Use /api/events/:id/permanent to erase for good.
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   const user = await getCurrentUser();
   if (!user || user.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const db = createAdminClient();
-  const { error } = await db.from("events").delete().eq("id", params.id);
+  const { error } = await db.from("events").update({ deleted_at: new Date().toISOString() }).eq("id", params.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

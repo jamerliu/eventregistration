@@ -26,6 +26,7 @@ export default async function HomePage() {
   const { data: events } = await db
     .from("events")
     .select("*, registrations(status, user_id)")
+    .is("deleted_at", null)
     .order("starts_at", { ascending: true });
 
   const shaped: EventListItem[] = (events ?? []).map((e) => {

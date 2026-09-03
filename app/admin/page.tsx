@@ -13,15 +13,21 @@ export default async function AdminPage() {
   const { data: events } = await db
     .from("events")
     .select("*, registrations(status)")
+    .is("deleted_at", null)
     .order("starts_at", { ascending: true });
 
   return (
     <div>
       <div className="flex items-center justify-between gap-6">
         <h1 className="font-display text-5xl md:text-6xl tracking-tight">Admin</h1>
-        <Link href="/admin/events/new">
-          <Button>New Event →</Button>
-        </Link>
+        <div className="flex gap-4">
+          <Link href="/admin/trash">
+            <Button variant="secondary">Recycle Bin</Button>
+          </Link>
+          <Link href="/admin/events/new">
+            <Button>New Event →</Button>
+          </Link>
+        </div>
       </div>
       <div className="rule-thick mt-6 mb-12" />
 

@@ -12,6 +12,7 @@ export async function GET() {
   const { data: events, error } = await db
     .from("events")
     .select("*, registrations(status, user_id)")
+    .is("deleted_at", null)
     .order("starts_at", { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

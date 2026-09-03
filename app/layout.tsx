@@ -3,7 +3,7 @@ import "./globals.css";
 import { Nav } from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "Event Registration",
+  title: "SCPO Reims Event Registration",
   description: "Sign up for school events — winners chosen by fair random draw.",
 };
 

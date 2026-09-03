@@ -16,7 +16,9 @@ closes — instead of a first-come-first-served scramble.
   selected student later cancels, the admin can click **Promote Next From Waitlist** to pull in
   the next person in random order. Admins can also copy the email addresses for any outcome
   group (selected / waitlisted / not selected) to paste into their own email client and notify
-  people manually — see "About notifications" below.
+  people manually — see "About notifications" below. Deleting an event moves it to a
+  **Recycle Bin** (`/admin/trash`) rather than erasing it immediately — it disappears from
+  students' view right away, but can be restored, or permanently deleted, from there.
 
 ## Stack
 
@@ -139,6 +141,7 @@ app/
   page.tsx                      Landing page (sign in/up form) / event list (signed in)
   events/[id]/page.tsx          Student-facing event detail + register/cancel
   admin/page.tsx                Admin dashboard: list of events
+  admin/trash/page.tsx          Recycle Bin: restore or permanently delete soft-deleted events
   admin/events/new/page.tsx     Create event form
   admin/events/[id]/page.tsx    Manage event: registrant list, run draw, promote, copy emails
   api/events/                   REST endpoints (list/create, get/edit/delete, register, draw, promote)
