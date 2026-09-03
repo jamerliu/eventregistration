@@ -5,6 +5,9 @@ export type AppUser = {
   id: string;
   email: string;
   name: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  yearGroup: "1A" | "2A" | "EXCHANGE" | null;
   role: "STUDENT" | "ADMIN";
 };
 
@@ -23,7 +26,7 @@ export async function getCurrentUser(): Promise<AppUser | null> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name, role")
+    .select("name, first_name, last_name, year_group, role")
     .eq("id", user.id)
     .single();
 
@@ -46,6 +49,9 @@ export async function getCurrentUser(): Promise<AppUser | null> {
     id: user.id,
     email: user.email,
     name: profile?.name ?? null,
+    firstName: profile?.first_name ?? null,
+    lastName: profile?.last_name ?? null,
+    yearGroup: (profile?.year_group as "1A" | "2A" | "EXCHANGE") ?? null,
     role,
   };
 }

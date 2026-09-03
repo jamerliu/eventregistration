@@ -4,7 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
-import { Input, Label } from "@/components/ui/Input";
+import { Input, Select, Label } from "@/components/ui/Input";
 
 const SCHOOL_DOMAIN = process.env.NEXT_PUBLIC_SCHOOL_DOMAIN ?? "";
 
@@ -14,6 +14,9 @@ export function AuthForm() {
   const [mode, setMode] = useState<Mode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [yearGroup, setYearGroup] = useState("1A");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -38,10 +41,23 @@ export function AuthForm() {
     const supabase = createClient();
 
     if (mode === "sign-up") {
+      if (!firstName.trim() || !lastName.trim()) {
+        setLoading(false);
+        setError("Please enter your first and last name.");
+        return;
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            year_group: yearGroup,
+          },
+        },
       });
       setLoading(false);
       if (error) {
@@ -102,6 +118,39 @@ export function AuthForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {mode === "sign-up" && (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>First name</Label>
+                <Input
+                  required
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="Marie"
+                />
+              </div>
+              <div>
+                <Label>Last name</Label>
+                <Input
+                  required
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Curie"
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Year</Label>
+              <Select value={yearGroup} onChange={(e) => setYearGroup(e.target.value)}>
+                <option value="1A">1A</option>
+                <option value="2A">2A</option>
+                <option value="EXCHANGE">Exchange</option>
+              </Select>
+            </div>
+          </>
+        )}
+
         <div>
           <Label>School email</Label>
           <Input

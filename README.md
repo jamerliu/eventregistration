@@ -6,19 +6,25 @@ closes — instead of a first-come-first-served scramble.
 
 ## How it works
 
-- **Students** sign up with their school email and a password. Supabase emails a confirmation
-  link before the account is active. Signed in, they browse open events and register — they
-  can cancel anytime before the draw. Their result (selected / waitlisted / not selected) shows
-  right on the event page once the draw has run.
+- **Students** sign up with their first name, last name, year (1A / 2A / Exchange), school
+  email, and a password. Supabase emails a confirmation link before the account is active.
+  Signed in, they browse open events and register — they can cancel anytime before the draw.
+  Their result (selected / waitlisted / not selected) shows right on the event page once the
+  draw has run.
 - **Admins** (managed directly in a Supabase table — see below) create events with a max
   capacity and a registration deadline. When ready, they click **Run Random Draw**, which
   randomly selects up to capacity from everyone registered and waitlists the rest. If a
   selected student later cancels, the admin can click **Promote Next From Waitlist** to pull in
   the next person in random order. Admins can also copy the email addresses for any outcome
   group (selected / waitlisted / not selected) to paste into their own email client and notify
-  people manually — see "About notifications" below. Deleting an event moves it to a
-  **Recycle Bin** (`/admin/trash`) rather than erasing it immediately — it disappears from
-  students' view right away, but can be restored, or permanently deleted, from there.
+  people manually — see "About notifications" below.
+  - Once an event's draw has run, it moves out of the main Admin list into **Drawn Events**
+    (`/admin/drawn`) automatically, keeping the main dashboard focused on events still open
+    for registration. It's still fully manageable from there — nothing is hidden, just filed
+    separately.
+  - Deleting an event moves it to a **Recycle Bin** (`/admin/trash`) rather than erasing it
+    immediately — it disappears from students' view right away, but can be restored, or
+    permanently deleted, from there.
 
 ## Stack
 
@@ -140,7 +146,8 @@ deployed app point at.
 app/
   page.tsx                      Landing page (sign in/up form) / event list (signed in)
   events/[id]/page.tsx          Student-facing event detail + register/cancel
-  admin/page.tsx                Admin dashboard: list of events
+  admin/page.tsx                Admin dashboard: list of open/in-progress events
+  admin/drawn/page.tsx          Events whose draw has already run
   admin/trash/page.tsx          Recycle Bin: restore or permanently delete soft-deleted events
   admin/events/new/page.tsx     Create event form
   admin/events/[id]/page.tsx    Manage event: registrant list, run draw, promote, copy emails

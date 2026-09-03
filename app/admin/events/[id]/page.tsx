@@ -17,7 +17,7 @@ export default async function ManageEventPage({ params }: { params: { id: string
 
   const { data: registrations } = await db
     .from("registrations")
-    .select("id, status, created_at, profiles(name, email)")
+    .select("id, status, created_at, profiles(name, email, year_group)")
     .eq("event_id", event.id)
     .order("created_at", { ascending: true });
 
@@ -60,6 +60,7 @@ export default async function ManageEventPage({ params }: { params: { id: string
           <thead>
             <tr className="border-b-2 border-black font-mono text-xs uppercase tracking-widest text-left">
               <th className="p-4">Name</th>
+              <th className="p-4">Year</th>
               <th className="p-4">Email</th>
               <th className="p-4">Status</th>
               <th className="p-4">Registered</th>
@@ -67,10 +68,11 @@ export default async function ManageEventPage({ params }: { params: { id: string
           </thead>
           <tbody className="divide-y divide-borderLight">
             {rows.map((r) => {
-              const profile = r.profiles as unknown as { name: string | null; email: string };
+              const profile = r.profiles as unknown as { name: string | null; email: string; year_group: string | null };
               return (
                 <tr key={r.id} className="font-body">
                   <td className="p-4">{profile?.name ?? "—"}</td>
+                  <td className="p-4 font-mono text-xs uppercase">{profile?.year_group ?? "—"}</td>
                   <td className="p-4">{profile?.email}</td>
                   <td className="p-4">
                     <StatusBadge status={r.status as never} />

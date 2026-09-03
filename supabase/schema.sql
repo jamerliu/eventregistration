@@ -7,6 +7,9 @@ create table if not exists public.profiles (
   id         uuid primary key references auth.users(id) on delete cascade,
   email      text unique not null,
   name       text,
+  first_name text not null default '',
+  last_name  text not null default '',
+  year_group text not null default '1A' check (year_group in ('1A', '2A', 'EXCHANGE')),
   role       text not null default 'STUDENT' check (role in ('STUDENT', 'ADMIN')),
   created_at timestamptz not null default now()
 );
@@ -49,17 +52,25 @@ create table if not exists public.admin_emails (
 
 -- 4. Auto-create a profile row the moment someone signs in for the first time.
 -- If their email is already in admin_emails, they're created as an ADMIN immediately.
+-- first_name / last_name / year_group come from the sign-up form (passed as user metadata).
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
+declare
+  v_first_name text := coalesce(new.raw_user_meta_data ->> 'first_name', '');
+  v_last_name  text := coalesce(new.raw_user_meta_data ->> 'last_name', '');
+  v_year_group text := coalesce(new.raw_user_meta_data ->> 'year_group', '1A');
 begin
-  insert into public.profiles (id, email, name, role)
+  insert into public.profiles (id, email, name, first_name, last_name, year_group, role)
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data ->> 'full_name', new.raw_user_meta_data ->> 'name'),
+    trim(v_first_name || ' ' || v_last_name),
+    v_first_name,
+    v_last_name,
+    v_year_group,
     case when exists (select 1 from public.admin_emails where email = lower(new.email))
          then 'ADMIN' else 'STUDENT' end
   )
